@@ -15,16 +15,19 @@ func main() {
 
 	if utils.UseTemporaryDB(args) {
 		db, err = gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+
+		// Always run migration when using temporary DB
+		utils.MigrateDB(db)
 	} else {
 		db, err = gorm.Open(sqlite.Open("db/dev.db"), &gorm.Config{})
+
+		if utils.IsMigrationEnabled(args) {
+			utils.MigrateDB(db)
+		}
 	}
 
 	if err != nil {
 		panic("failed to connect database")
-	}
-
-	if utils.IsMigrationEnabled(args) {
-		utils.MigrateDB(db)
 	}
 
 	if utils.IsFixturesEnabled(args) {
