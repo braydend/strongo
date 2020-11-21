@@ -1,7 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"net/http"
 	"os"
+	"strongo/controllers"
 	"strongo/utils"
 
 	"gorm.io/driver/sqlite"
@@ -33,4 +37,17 @@ func main() {
 	if utils.IsFixturesEnabled(args) {
 		utils.AddFixtureData(db)
 	}
+
+	startServer(db)
+}
+
+// startServer - Boot the API server and listen on port 8080
+func startServer(db *gorm.DB) {
+	port := 8080
+	fmt.Println(fmt.Sprintf("Starting server on port: %d", port))
+
+	http.HandleFunc("/exercises", controllers.HandleExercises(db))
+	http.HandleFunc("/exercise/create", controllers.HandleCreateExercise(db))
+
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", 8080), nil))
 }
