@@ -16,15 +16,16 @@ import (
 // /exercises?id=123&?id=456 - Get exercises with matching ids
 func HandleExercises(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if utils.RestrictMethods([]string{utils.GET}, r.Method, w) != nil {
+		err := utils.RestrictMethods([]string{utils.GET}, r.Method)
+		if err != nil {
+			w.WriteHeader(405)
+			fmt.Fprintf(w, err.Error())
 			return
 		}
 		var exercises []models.Exercise
+		ids := utils.GetQueryParamValues(r.URL, "id", nil)
 
-		query := r.URL.Query()
-		ids, present := query["id"]
-
-		if !present || len(ids) == 0 {
+		if ids == nil {
 			db.Find(&exercises)
 		} else {
 			db.Find(&exercises, ids)
@@ -41,7 +42,10 @@ func HandleExercises(db *gorm.DB) http.HandlerFunc {
 // /exercise/create - Create a new exercise using data in request body
 func HandleCreateExercise(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if utils.RestrictMethods([]string{utils.POST}, r.Method, w) != nil {
+		err := utils.RestrictMethods([]string{utils.POST}, r.Method)
+		if err != nil {
+			w.WriteHeader(405)
+			fmt.Fprintf(w, err.Error())
 			return
 		}
 		r.ParseForm()
