@@ -1,13 +1,11 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
 	"os"
-	"strongo/controllers"
 	"strongo/utils"
+	"strongo/utils/router"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -43,11 +41,7 @@ func main() {
 
 // startServer - Boot the API server and listen on port 8080
 func startServer(db *gorm.DB) {
-	port := 8080
-	fmt.Println(fmt.Sprintf("Starting server on port: %d", port))
-
-	http.HandleFunc("/exercises", controllers.HandleExercises(db))
-	http.HandleFunc("/exercise/create", controllers.HandleCreateExercise(db))
-
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", 8080), nil))
+	r := gin.Default()
+	router.LoadRouter(r, db)
+	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
