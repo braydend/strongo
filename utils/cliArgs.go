@@ -6,20 +6,12 @@ import (
 
 // IsMigrationEnabled - Checks if "migrate" argument is supplied and returns boolean
 func IsMigrationEnabled(args []string) bool {
-	if containsArg("migrate", args) {
-		return true
-	}
-
-	return false
+	return containsArg("migrate", args)
 }
 
 // IsFixturesEnabled - Checks if "fixture" argument is supplied and returns boolean
 func IsFixturesEnabled(args []string) bool {
-	if containsArg("fixture", args) {
-		return true
-	}
-
-	return false
+	return containsArg("fixture", args)
 }
 
 // UseTemporaryDB - Checks if "temp" argument is supplied and returns boolean
