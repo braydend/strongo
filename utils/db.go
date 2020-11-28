@@ -9,6 +9,7 @@ import (
 
 // MigrateDB - Add models to list when they are added
 func MigrateDB(db *gorm.DB) bool {
+	fmt.Println("---Running Migrations---")
 	exerciseErr := db.AutoMigrate(&models.Exercise{})
 	setErr := db.AutoMigrate(&models.Set{})
 	userErr := db.AutoMigrate(&models.User{})
@@ -45,7 +46,9 @@ func generateFixtureExercises() []models.Exercise {
 	return exercises
 }
 
+// AddFixtureData - Store fixture data in db
 func AddFixtureData(db *gorm.DB) bool {
+	fmt.Println("---Running Fixtures---")
 	exercises := generateFixtureExercises()
 
 	tx := db.Create(&exercises)

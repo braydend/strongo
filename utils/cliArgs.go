@@ -7,7 +7,6 @@ import (
 // IsMigrationEnabled - Checks if "migrate" argument is supplied and returns boolean
 func IsMigrationEnabled(args []string) bool {
 	if containsArg("migrate", args) {
-		fmt.Println("--- Database will migrate ---")
 		return true
 	}
 
@@ -17,7 +16,6 @@ func IsMigrationEnabled(args []string) bool {
 // IsFixturesEnabled - Checks if "fixture" argument is supplied and returns boolean
 func IsFixturesEnabled(args []string) bool {
 	if containsArg("fixture", args) {
-		fmt.Println("--- Fixtures will run ---")
 		return true
 	}
 

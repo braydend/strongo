@@ -1,56 +1,84 @@
 package controllers
 
 import (
-	"fmt"
-	"net/http"
 	"strongo/models"
-	"strongo/utils"
+	"strongo/utils/httputils"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-// HandleExercises - GET -
+// HandleExercises | GET
 //
 // /exercises - Get all exercises
 //
-// /exercises?id=123&?id=456 - Get exercises with matching ids
-func HandleExercises(db *gorm.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		err := utils.RestrictMethods([]string{utils.GET}, r.Method)
-		if err != nil {
-			w.WriteHeader(405)
-			fmt.Fprintf(w, err.Error())
-			return
-		}
+// /exercises?id=123&id=456 - Get exercises with matching ids
+func HandleExercises(db *gorm.DB) func(*gin.Context) {
+	return func(c *gin.Context) {
 		var exercises []models.Exercise
-		ids := utils.GetQueryParamValues(r.URL, "id", nil)
+		ids, hasIds := c.GetQueryArray("id")
 
-		if ids == nil {
-			db.Find(&exercises)
-		} else {
+		if hasIds {
 			db.Find(&exercises, ids)
+		} else {
+			db.Find(&exercises)
 		}
+
+		var exerciseJSON []gin.H
 
 		for _, exercise := range exercises {
-			fmt.Fprintf(w, fmt.Sprintf("%d: %s \n", exercise.ID, exercise.Name))
+			var sets []models.Set
+			db.Model(&exercise).Association("Sets").Find(&sets)
+
+			exerciseJSON = append(exerciseJSON, gin.H{
+				"id":   exercise.ID,
+				"name": exercise.Name,
+				"sets": sets,
+			})
 		}
+
+		httputils.HandleErrorOrSuccessResponse(c, nil, exerciseJSON, nil)
 	}
 }
 
-// HandleCreateExercise - POST -
+// HandleCreateExercise | POST
 //
 // /exercise/create - Create a new exercise using data in request body
-func HandleCreateExercise(db *gorm.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		err := utils.RestrictMethods([]string{utils.POST}, r.Method)
-		if err != nil {
-			w.WriteHeader(405)
-			fmt.Fprintf(w, err.Error())
-			return
-		}
-		r.ParseForm()
-		exercise := models.Exercise{Name: r.Form.Get("name")}
+func HandleCreateExercise(db *gorm.DB) func(*gin.Context) {
+	return func(c *gin.Context) {
+		exercise := models.Exercise{Name: c.PostForm("name")}
 		db.Create(&exercise)
-		fmt.Fprintf(w, fmt.Sprintf("Exercise %d: %s", exercise.ID, exercise.Name))
+
+		httputils.HandleErrorOrSuccessResponse(c, nil, exercise, nil)
+	}
+}
+
+//HandleUpdateExercise | POST
+//
+// Update an exercise
+func HandleUpdateExercise(db *gorm.DB) func(*gin.Context) {
+	return func(c *gin.Context) {
+		exerciseID, e := httputils.GetIntQueryParamValue(c, "exerciseId")
+		var exercise models.Exercise
+		db.Find(&exercise).Where("ID = ?", exerciseID)
+
+		name := c.DefaultPostForm("name", exercise.Name)
+
+		exercise.SetName(name)
+
+		httputils.HandleErrorOrSuccessResponse(c, e, exercise, func() { db.Save(&exercise) })
+	}
+}
+
+// HandleDeleteExercise | DELETE
+//
+// Soft-delete an exercise by id
+func HandleDeleteExercise(db *gorm.DB) func(*gin.Context) {
+	return func(c *gin.Context) {
+		exerciseID, e := httputils.GetIntQueryParamValue(c, "exerciseId")
+		var exercise models.Exercise
+		db.Find(&exercise).Where("ID = ?", exerciseID)
+
+		httputils.HandleErrorOrSuccessResponse(c, e, exercise, func() { db.Delete(&exercise) })
 	}
 }
