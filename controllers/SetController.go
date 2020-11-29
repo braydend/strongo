@@ -16,7 +16,7 @@ func HandleCreateSet(db *gorm.DB) func(*gin.Context) {
 		exerciseID, e := httputils.GetIntQueryParamValue(c, "exerciseId")
 		reps, e := httputils.GetIntPostValue(c, "reps")
 		weight, e := httputils.GetFloatPostValue(c, "weight")
-		userID, e := httputils.GetIntPostValue(c, "userId")
+		userID := c.PostForm("userId")
 		unit := c.PostForm("unit")
 		set := models.Set{
 			ExerciseID: exerciseID,
@@ -41,7 +41,7 @@ func HandleUpdateSet(db *gorm.DB) func(*gin.Context) {
 
 		reps, e := httputils.GetDefaultIntPostValue(c, "reps", set.Reps)
 		weight, e := httputils.GetDefaultFloatPostValue(c, "weight", set.Weight)
-		userID, e := httputils.GetDefaultIntPostValue(c, "userId", set.UserID)
+		userID := c.DefaultPostForm("userId", set.UserID)
 		unit := c.DefaultPostForm("unit", set.Unit)
 
 		set.SetReps(reps).SetWeight(weight).SetUser(userID).SetUnit(unit)

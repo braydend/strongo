@@ -12,7 +12,7 @@ func MigrateDB(db *gorm.DB) bool {
 	fmt.Println("---Running Migrations---")
 	exerciseErr := db.AutoMigrate(&models.Exercise{})
 	setErr := db.AutoMigrate(&models.Set{})
-	userErr := db.AutoMigrate(&models.User{})
+	userWeightErr := db.AutoMigrate(&models.UserWeight{})
 
 	if exerciseErr != nil {
 		fmt.Println("Exercise error:")
@@ -26,9 +26,9 @@ func MigrateDB(db *gorm.DB) bool {
 		return false
 	}
 
-	if userErr != nil {
+	if userWeightErr != nil {
 		fmt.Println("User error:")
-		fmt.Println(userErr.Error())
+		fmt.Println(userWeightErr.Error())
 		return false
 	}
 
