@@ -4,6 +4,7 @@ import (
 	"strongo/models"
 	"strongo/utils/httputils"
 
+	firebase "firebase.google.com/go"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -63,15 +64,17 @@ func HandleDeleteSet(db *gorm.DB) func(*gin.Context) {
 	}
 }
 
-func HandleGetSetsForExerciseByUser(db *gorm.DB) func(*gin.Context) {
+func HandleGetSetsForExerciseByUser(db *gorm.DB, fb *firebase.App) func(*gin.Context) {
 	return func(c *gin.Context) {
 		exerciseID := c.Query("exerciseId")
-		userID := c.Query("userId")
+		auth, err := fb.Auth(c)
+
+		token := httputils.GetAuthTokenForRequest(c, auth)
 
 		var exercise models.Exercise
-		var sets []models.Set
-		db.Find(&exercise, exerciseID).Where("user_id = ?", userID).Association("Sets").Find(&sets)
+		db.Find(&exercise, exerciseID)
+		sets := exercise.GetSetsForUser(db, token.UID)
 
-		httputils.HandleErrorOrSuccessResponse(c, nil, sets, nil)
+		httputils.HandleErrorOrSuccessResponse(c, err, sets, nil)
 	}
 }

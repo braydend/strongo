@@ -2,9 +2,12 @@ package httputils
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
+	"firebase.google.com/go/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -58,4 +61,19 @@ func HandleErrorOrSuccessResponse(c *gin.Context, e error, data interface{}, onB
 			"data":    data,
 		})
 	}
+}
+
+func GetAuthTokenForRequest(c *gin.Context, auth *auth.Client) *auth.Token {
+	authHeader := c.GetHeader("Authorization")
+	idToken := strings.Replace(authHeader, "Bearer ", "", 1)
+	token, err := auth.VerifyIDToken(c, idToken)
+	if err != nil {
+		log.Printf("error verifying ID token: %v\n", err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+		c.Abort()
+	}
+	return token
 }
