@@ -62,3 +62,16 @@ func HandleDeleteSet(db *gorm.DB) func(*gin.Context) {
 		httputils.HandleErrorOrSuccessResponse(c, e, set, func() { db.Delete(&set) })
 	}
 }
+
+func HandleGetSetsForExerciseByUser(db *gorm.DB) func(*gin.Context) {
+	return func(c *gin.Context) {
+		exerciseID := c.Query("exerciseId")
+		userID := c.Query("userId")
+
+		var exercise models.Exercise
+		var sets []models.Set
+		db.Find(&exercise, exerciseID).Where("user_id = ?", userID).Association("Sets").Find(&sets)
+
+		httputils.HandleErrorOrSuccessResponse(c, nil, sets, nil)
+	}
+}

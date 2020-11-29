@@ -29,6 +29,7 @@ func LoadRouter(router *gin.Engine, db *gorm.DB) {
 	router.POST("/exercises/:exerciseId/createSet", (controllers.HandleCreateSet(db)))
 	router.POST("/sets/:setId/update", (controllers.HandleUpdateSet(db)))
 	router.DELETE("/sets/:setId", controllers.HandleDeleteSet(db))
+
 	router.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": "Invalid route",
