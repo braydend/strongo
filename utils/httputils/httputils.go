@@ -8,6 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetUintQueryParamValue - Get the value of a query param as a uint
+func GetUintQueryParamValue(c *gin.Context, key string) (uint, error) {
+	val, e := strconv.ParseUint(c.Param(key), 10, 32)
+	return uint(val), e
+}
+
 // GetIntQueryParamValue - Get the value of a query param as an int
 func GetIntQueryParamValue(c *gin.Context, key string) (int, error) {
 	return strconv.Atoi(c.Param(key))

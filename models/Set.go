@@ -8,7 +8,7 @@ import (
 type Set struct {
 	gorm.Model
 	Reps       int
-	ExerciseID int
+	ExerciseID uint
 	UserID     string
 	Weight     float64
 	Unit       string
@@ -19,7 +19,7 @@ func (set *Set) SetReps(reps int) *Set {
 	return set
 }
 
-func (set *Set) SetExercise(id int) *Set {
+func (set *Set) SetExercise(id uint) *Set {
 	set.ExerciseID = id
 	return set
 }

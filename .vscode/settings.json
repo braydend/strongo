@@ -4,5 +4,13 @@
         "gorm",
         "sqlite",
         "strongo"
+    ],
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "strongo",
+            "database": "${workspaceFolder:strongo}/db/dev.db"
+        }
     ]
 }

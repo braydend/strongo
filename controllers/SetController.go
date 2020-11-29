@@ -13,7 +13,7 @@ import (
 // Create a set for an exercise
 func HandleCreateSet(db *gorm.DB) func(*gin.Context) {
 	return func(c *gin.Context) {
-		exerciseID, e := httputils.GetIntQueryParamValue(c, "exerciseId")
+		exerciseID, e := httputils.GetUintQueryParamValue(c, "exerciseId")
 		reps, e := httputils.GetIntPostValue(c, "reps")
 		weight, e := httputils.GetFloatPostValue(c, "weight")
 		userID := c.PostForm("userId")
