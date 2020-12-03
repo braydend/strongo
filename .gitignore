@@ -1,1 +1,4 @@
 db/dev.db
+*-credentials.json
+.DS_Store
+.env
