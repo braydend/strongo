@@ -12,14 +12,11 @@ import (
 //
 // /exercises - Get all exercises
 //
-// /exercises?userId=1234 - Get all exercises with sets for user 1234
-//
 // /exercises?id=123&id=456 - Get exercises with matching ids
 func HandleExercises(db *gorm.DB) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var exercises []models.Exercise
 		ids, hasIds := c.GetQueryArray("id")
-		userID, hasUserID := c.GetQuery("userId")
 
 		if hasIds {
 			db.Find(&exercises, ids)
@@ -30,19 +27,10 @@ func HandleExercises(db *gorm.DB) func(*gin.Context) {
 		var exerciseJSON []gin.H
 
 		for _, exercise := range exercises {
-			if hasUserID {
-				exerciseJSON = append(exerciseJSON, gin.H{
-					"id":   exercise.ID,
-					"name": exercise.Name,
-					"sets": exercise.GetSetsForUser(db, userID),
-				})
-			} else {
-				exerciseJSON = append(exerciseJSON, gin.H{
-					"id":   exercise.ID,
-					"name": exercise.Name,
-				})
-			}
-
+			exerciseJSON = append(exerciseJSON, gin.H{
+				"id":   exercise.ID,
+				"name": exercise.Name,
+			})
 		}
 
 		httputils.HandleErrorOrSuccessResponse(c, nil, exerciseJSON, nil)
