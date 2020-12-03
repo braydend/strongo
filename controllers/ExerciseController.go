@@ -27,13 +27,9 @@ func HandleExercises(db *gorm.DB) func(*gin.Context) {
 		var exerciseJSON []gin.H
 
 		for _, exercise := range exercises {
-			var sets []models.Set
-			db.Model(&exercise).Association("Sets").Find(&sets)
-
 			exerciseJSON = append(exerciseJSON, gin.H{
 				"id":   exercise.ID,
 				"name": exercise.Name,
-				"sets": sets,
 			})
 		}
 

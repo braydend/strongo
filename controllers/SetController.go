@@ -4,6 +4,7 @@ import (
 	"strongo/models"
 	"strongo/utils/httputils"
 
+	firebase "firebase.google.com/go"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -13,7 +14,7 @@ import (
 // Create a set for an exercise
 func HandleCreateSet(db *gorm.DB) func(*gin.Context) {
 	return func(c *gin.Context) {
-		exerciseID, e := httputils.GetIntQueryParamValue(c, "exerciseId")
+		exerciseID, e := httputils.GetUintQueryParamValue(c, "exerciseId")
 		reps, e := httputils.GetIntPostValue(c, "reps")
 		weight, e := httputils.GetFloatPostValue(c, "weight")
 		userID := c.PostForm("userId")
@@ -60,5 +61,20 @@ func HandleDeleteSet(db *gorm.DB) func(*gin.Context) {
 		db.Find(&set).Where("ID = ?", setID)
 
 		httputils.HandleErrorOrSuccessResponse(c, e, set, func() { db.Delete(&set) })
+	}
+}
+
+func HandleGetSetsForExerciseByUser(db *gorm.DB, fb *firebase.App) func(*gin.Context) {
+	return func(c *gin.Context) {
+		exerciseID := c.Query("exerciseId")
+		auth, err := fb.Auth(c)
+
+		token := httputils.GetAuthTokenForRequest(c, auth)
+
+		var exercise models.Exercise
+		db.Find(&exercise, exerciseID)
+		sets := exercise.GetSetsForUser(db, token.UID)
+
+		httputils.HandleErrorOrSuccessResponse(c, err, sets, nil)
 	}
 }

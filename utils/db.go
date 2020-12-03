@@ -36,7 +36,7 @@ func MigrateDB(db *gorm.DB) bool {
 }
 
 func generateFixtureExercises() []models.Exercise {
-	exerciseNames := []string{"Bench Press", "Bicep Curl"}
+	exerciseNames := []string{"Bench Press", "Bicep Curl", "Overhead Press", "Bent-over Rows"}
 	var exercises []models.Exercise
 
 	for _, name := range exerciseNames {
