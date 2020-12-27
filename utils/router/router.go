@@ -27,7 +27,7 @@ func JWTFirewall(router *gin.Engine, app *firebase.App) {
 			c.Abort()
 		}
 
-		token := httputils.GetAuthTokenForRequest(c, client)
+		token := httputils.GetAndAuthoriseTokenForRequest(c, client)
 		fmt.Printf("User ID: %s\n", token.UID)
 	})
 }

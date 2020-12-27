@@ -72,7 +72,7 @@ func HandleGetSetsForExerciseByUser(db *gorm.DB, fb *firebase.App) func(*gin.Con
 		exerciseID := c.Param("exerciseId")
 		auth, err := fb.Auth(c)
 
-		token := httputils.GetAuthTokenForRequest(c, auth)
+		token := httputils.GetAndAuthoriseTokenForRequest(c, auth)
 
 		var exercise models.Exercise
 		db.Find(&exercise, exerciseID)

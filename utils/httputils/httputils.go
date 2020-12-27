@@ -2,10 +2,10 @@ package httputils
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
+	"strongo/utils/firebaseutils"
 
 	"firebase.google.com/go/auth"
 	"github.com/gin-gonic/gin"
@@ -63,17 +63,15 @@ func HandleErrorOrSuccessResponse(c *gin.Context, e error, data interface{}, onB
 	}
 }
 
-func GetAuthTokenForRequest(c *gin.Context, auth *auth.Client) *auth.Token {
+func getAuthTokenForRequest(c *gin.Context) string {
 	authHeader := c.GetHeader("Authorization")
-	idToken := strings.Replace(authHeader, "Bearer ", "", 1)
-	token, err := auth.VerifyIDToken(c, idToken)
-	if err != nil {
-		log.Printf("error verifying ID token: %v\n", err)
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"success": false,
-			"error":   err.Error(),
-		})
-		c.Abort()
-	}
+	token := strings.Replace(authHeader, "Bearer ", "", 1)
+
 	return token
+}
+
+// GetAndAuthoriseTokenForRequest - Retrive token from request headers and authorise it against Firebase auth
+func GetAndAuthoriseTokenForRequest(c *gin.Context, auth *auth.Client) *auth.Token {
+	idToken := getAuthTokenForRequest(c)
+	return firebaseutils.AuthoriseFirebaseToken(c, auth, idToken)
 }
