@@ -24,16 +24,7 @@ func HandleExercises(db *gorm.DB) func(*gin.Context) {
 			db.Find(&exercises)
 		}
 
-		var exerciseJSON []gin.H
-
-		for _, exercise := range exercises {
-			exerciseJSON = append(exerciseJSON, gin.H{
-				"id":   exercise.ID,
-				"name": exercise.Name,
-			})
-		}
-
-		httputils.HandleErrorOrSuccessResponse(c, nil, exerciseJSON, nil)
+		httputils.HandleErrorOrSuccessResponse(c, nil, exercises, nil)
 	}
 }
 

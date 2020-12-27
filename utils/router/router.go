@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"strongo/controllers"
+	"strongo/utils/httputils"
 	"time"
 
 	firebase "firebase.google.com/go"
@@ -17,9 +17,6 @@ import (
 // JWTFirewall - Firewall all requests behind a valid JWT provided by Firebase Auth
 func JWTFirewall(router *gin.Engine, app *firebase.App) {
 	router.Use(func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		idToken := strings.Replace(authHeader, "Bearer ", "", 1)
-
 		client, err := app.Auth(c)
 		if err != nil {
 			log.Printf("error getting Auth client: %v\n", err)
@@ -30,16 +27,8 @@ func JWTFirewall(router *gin.Engine, app *firebase.App) {
 			c.Abort()
 		}
 
-		token, err := client.VerifyIDToken(c, idToken)
-		if err != nil {
-			log.Printf("error verifying ID token: %v\n", err)
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"success": false,
-				"error":   err.Error(),
-			})
-			c.Abort()
-		}
-		fmt.Printf("User ID: %s", token.UID)
+		token := httputils.GetAndAuthoriseTokenForRequest(c, client)
+		fmt.Printf("User ID: %s\n", token.UID)
 	})
 }
 
