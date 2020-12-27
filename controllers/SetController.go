@@ -64,9 +64,12 @@ func HandleDeleteSet(db *gorm.DB) func(*gin.Context) {
 	}
 }
 
+// HandleGetSetsForExerciseByUser | GET
+//
+// Fetch all sets for an exercise using JWT for auth
 func HandleGetSetsForExerciseByUser(db *gorm.DB, fb *firebase.App) func(*gin.Context) {
 	return func(c *gin.Context) {
-		exerciseID := c.Query("exerciseId")
+		exerciseID := c.Param("exerciseId")
 		auth, err := fb.Auth(c)
 
 		token := httputils.GetAuthTokenForRequest(c, auth)
